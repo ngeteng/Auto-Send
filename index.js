@@ -37,7 +37,7 @@ function selectNetwork() {
 }
 
 function getProviderAndWallet(network) {
-  if (!network.url.startsWith('http')) {
+  if (!network.url || !network.url.startsWith('http')) {
     console.log(chalk.red(`⚠️  Invalid RPC URL for ${network.name}: ${network.url}`));
     process.exit(1);
   }
@@ -52,7 +52,7 @@ async function showBalance() {
   try {
     console.log(chalk.blue(`\n🔍 Fetching balance on ${net.name}...`));
     const balance = await provider.getBalance(wallet.address);
-    console.log(chalk.green(`💰 Balance on ${net.name}: ${ethers.formatEther(balance)} ETH\n`));
+    console.log(chalk.green(`💰 Balance on ${net.name}: ${ethers.formatEther(balance)}`));
   } catch (err) {
     console.log(chalk.red('❌ Error fetching balance:'), err.message);
   }
@@ -66,9 +66,9 @@ async function sendTransactionInteractive() {
   try {
     console.log(chalk.blue(`\n⏳ Sending ${amount} ETH on ${net.name} to ${to}...`));
     const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
-    console.log(chalk.yellow('🔗 Transaction hash:'), tx.hash);
+    console.log(chalk.green('✅ Transaction sent. Hash:'), tx.hash);
     await tx.wait();
-    console.log(chalk.green('✅ Transaction confirmed!\n'));
+    console.log(chalk.green('✅ Transaction confirmed.'));
   } catch (err) {
     console.log(chalk.red('❌ Error sending transaction:'), err.message);
   }
@@ -89,13 +89,17 @@ function scheduleCronInteractive() {
       console.log(chalk.red(new Date().toISOString(), '❌ Cron send error:'), err.message);
     }
   });
-  console.log(chalk.green('🚀 Cron job started. Keeping process running...\n'));
+  console.log(chalk.green('🚀 Cron job started. Keeping process running...'));
 }
 
 async function main() {
-  console.log(chalk.bgBlue.bold('🚀 Multi-Net Sepolia Wallet Automation'));
+  console.log(chalk.blue.bold('🚀 Multi-Net Sepolia Wallet Automation'));
   while (true) {
-    console.log(chalk.yellow(`\n📋 Menu:\n1) Check Balance\n2) Send ETH\n3) Schedule Recurring Send\n0) Exit\n`));
+    console.log(chalk.yellow(`\n📋 Menu:`));
+    console.log(chalk.yellow('1) Check Balance'));
+    console.log(chalk.yellow('2) Send ETH'));
+    console.log(chalk.yellow('3) Schedule Recurring Send'));
+    console.log(chalk.yellow('0) Exit'));
     const choice = prompt(chalk.magenta('Choose an option: '));
     switch (choice) {
       case '1': await showBalance(); break;
