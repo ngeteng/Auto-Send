@@ -4,7 +4,7 @@
 //   - Node.js v14+
 //   - npm install ethers dotenv prompt-sync node-cron
 
-const { ethers } = require('ethers');
+const ethers = require('ethers');
 const cron = require('node-cron');
 const dotenv = require('dotenv');
 const promptSync = require('prompt-sync');
@@ -13,13 +13,13 @@ dotenv.config();
 const prompt = promptSync({ sigint: true });
 
 // Initialize provider and wallet
-const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
 async function showBalance() {
   try {
     const balance = await wallet.getBalance();
-    console.log(`\n=== Balance ===\n${ethers.utils.formatEther(balance)} ETH\n`);
+    console.log(`\n=== Balance ===\n${ethers.formatEther(balance)} ETH\n`);
   } catch (err) {
     console.error('Error fetching balance:', err);
   }
@@ -30,7 +30,7 @@ async function sendTransactionInteractive() {
   const amount = prompt('Enter amount (ETH): ');
   try {
     console.log(`Sending ${amount} ETH to ${to}...`);
-    const tx = await wallet.sendTransaction({ to, value: ethers.utils.parseEther(amount) });
+    const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
     console.log('Transaction hash:', tx.hash);
     await tx.wait();
     console.log('Transaction confirmed.\n');
@@ -46,7 +46,7 @@ function scheduleCronInteractive() {
   console.log(`Scheduling send of ${amount} ETH to ${to} at '${cronExpr}'`);
   cron.schedule(cronExpr, async () => {
     try {
-      const tx = await wallet.sendTransaction({ to, value: ethers.utils.parseEther(amount) });
+      const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
       console.log(new Date().toISOString(), 'Sent tx:', tx.hash);
     } catch (err) {
       console.error(new Date().toISOString(), 'Cron send error:', err);
