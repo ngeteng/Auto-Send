@@ -27,9 +27,9 @@ function selectNetwork() {
   console.log(chalk.cyan('3) BSC Testnet (BNB)'));
   const choice = prompt(chalk.magenta('Network (1-3): '));
   switch (choice) {
-    case '1': return { name: 'Sepolia',      url: RPC.sepolia,      chainId: 11155111 };
-    case '2': return { name: 'Base-Sepolia', url: RPC['base-sepolia'], chainId: 84532   };
-    case '3': return { name: 'BSC Testnet',  url: RPC['bsc-testnet'], chainId: 97      };
+    case '1': return { name: 'Sepolia', url: RPC.sepolia, chainId: 11155111 };
+    case '2': return { name: 'Base-Sepolia', url: RPC['base-sepolia'], chainId: 84532 };
+    case '3': return { name: 'BSC Testnet', url: RPC['bsc-testnet'], chainId: 97 };
     default:
       console.log(chalk.red('Invalid choice, defaulting to Sepolia 🔄'));
       return { name: 'Sepolia', url: RPC.sepolia, chainId: 11155111 };
@@ -50,11 +50,11 @@ async function showBalance() {
   const net = selectNetwork();
   const { provider, wallet } = getProviderAndWallet(net);
   try {
-    console.log(chalk.blue(`\n🔍 Fetching balance on ${net.name}...`));
+    console.log(chalk.bold(chalk.blue(`\n🔍 Fetching balance on ${net.name}...`)));
     const balance = await provider.getBalance(wallet.address);
     console.log(chalk.green(`💰 Balance on ${net.name}: ${ethers.formatEther(balance)}`));
   } catch (err) {
-    console.log(chalk.red('❌ Error fetching balance:'), err.message);
+    console.log(chalk.red(`❌ Error fetching balance: ${err.message}`));
   }
 }
 
@@ -64,13 +64,13 @@ async function sendTransactionInteractive() {
   const to = prompt(chalk.magenta('➡️  Enter recipient address: '));
   const amount = prompt(chalk.magenta('💵 Enter amount (ETH): '));
   try {
-    console.log(chalk.blue(`\n⏳ Sending ${amount} ETH on ${net.name} to ${to}...`));
+    console.log(chalk.bold(chalk.blue(`\n⏳ Sending ${amount} ETH on ${net.name} to ${to}...`)));
     const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
-    console.log(chalk.green('✅ Transaction sent. Hash:'), tx.hash);
+    console.log(chalk.green(`✅ Transaction sent. Hash: ${tx.hash}`));
     await tx.wait();
-    console.log(chalk.green('✅ Transaction confirmed.'));
+    console.log(chalk.green('✅ Transaction confirmed.'));  
   } catch (err) {
-    console.log(chalk.red('❌ Error sending transaction:'), err.message);
+    console.log(chalk.red(`❌ Error sending transaction: ${err.message}`));
   }
 }
 
@@ -80,20 +80,20 @@ function scheduleCronInteractive() {
   const cronExpr = prompt(chalk.magenta('⏰ Enter cron expression (e.g. 0 * * * *): '));
   const to = prompt(chalk.magenta('➡️  Enter recipient address: '));
   const amount = prompt(chalk.magenta('💵 Enter amount (ETH): '));
-  console.log(chalk.blue(`\n🔄 Scheduling send of ${amount} ETH on ${net.name} to ${to} at '${cronExpr}'`));
+  console.log(chalk.bold(chalk.blue(`\n🔄 Scheduling send of ${amount} ETH on ${net.name} to ${to} at '${cronExpr}'`)));
   cron.schedule(cronExpr, async () => {
     try {
       const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
-      console.log(chalk.green(new Date().toISOString(), '✅ Sent tx on', net.name, tx.hash));
+      console.log(chalk.green(`${new Date().toISOString()} ✅ Sent tx on ${net.name}: ${tx.hash}`));
     } catch (err) {
-      console.log(chalk.red(new Date().toISOString(), '❌ Cron send error:'), err.message);
+      console.log(chalk.red(`${new Date().toISOString()} ❌ Cron send error: ${err.message}`));
     }
   });
-  console.log(chalk.green('🚀 Cron job started. Keeping process running...'));
+  console.log(chalk.green('🚀 Cron job started. Keeping process running...'));  
 }
 
 async function main() {
-  console.log(chalk.blue.bold('🚀 Multi-Net Sepolia Wallet Automation'));
+  console.log(chalk.bold(chalk.blue('🚀 Multi-Net Sepolia Wallet Automation')));
   while (true) {
     console.log(chalk.yellow(`\n📋 Menu:`));
     console.log(chalk.yellow('1) Check Balance'));
