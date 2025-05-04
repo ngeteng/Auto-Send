@@ -1,14 +1,16 @@
 // automation_wallet_multinet.js
 // Interactive Automation CLI for Ethereum Sepolia & Base Sepolia Testnets with Colors & Emojis (ESM - Ethers v6)
+// Bulk send feature: reads addresses from addresses.txt and sends specified amount to each
 // Requirements:
 //   - Node.js v14+
-//   - npm install ethers dotenv prompt-sync node-cron chalk
+//   - npm install ethers dotenv prompt-sync node-cron chalk fs/promises
 
 import { JsonRpcProvider, Wallet, formatEther, parseEther } from 'ethers';
 import cron from 'node-cron';
 import dotenv from 'dotenv';
 import promptSync from 'prompt-sync';
 import chalk from 'chalk';
+import { readFile } from 'fs/promises';
 
 dotenv.config();
 const prompt = promptSync({ sigint: true });
@@ -75,6 +77,30 @@ async function sendTransactionInteractive() {
   }
 }
 
+async function bulkSend() {
+  const net = selectNetwork();
+  const { wallet } = getProviderAndWallet(net);
+  const amount = prompt(chalk.magenta('💵 Enter amount (ETH) for each address: '));
+  let addresses;
+  try {
+    const data = await readFile('addresses.txt', 'utf8');
+    addresses = data.split(/\r?\n/).filter(Boolean);
+  } catch {
+    console.log(chalk.red('❌ Gagal membaca addresses.txt')); process.exit(1);
+  }
+  console.log(chalk.bold(chalk.blue(`\n🔢 Bulk sending ${amount} ETH on ${net.name} to ${addresses.length} addresses...`)));
+  for (const to of addresses) {
+    try {
+      const tx = await wallet.sendTransaction({ to, value: parseEther(amount) });
+      console.log(chalk.green(`✅ Sent to ${to}: ${tx.hash}`));
+      await tx.wait();
+    } catch (err) {
+      console.log(chalk.red(`❌ Error to ${to}: ${err.message}`));
+    }
+  }
+  console.log(chalk.green('🚀 Bulk send completed.'));
+}
+
 function scheduleCronInteractive() {
   const net = selectNetwork();
   const { wallet } = getProviderAndWallet(net);
@@ -99,13 +125,15 @@ async function main() {
     console.log(chalk.yellow(`\n📋 Menu:`));
     console.log(chalk.yellow('1) Check Balance'));
     console.log(chalk.yellow('2) Send ETH'));
-    console.log(chalk.yellow('3) Schedule Recurring Send'));
+    console.log(chalk.yellow('3) Bulk Send from addresses.txt'));
+    console.log(chalk.yellow('4) Schedule Recurring Send'));
     console.log(chalk.yellow('0) Exit'));
     const choice = prompt(chalk.magenta('Choose an option: '));
     switch (choice) {
       case '1': await showBalance(); break;
       case '2': await sendTransactionInteractive(); break;
-      case '3': scheduleCronInteractive(); break;
+      case '3': await bulkSend(); break;
+      case '4': scheduleCronInteractive(); break;
       case '0': console.log(chalk.blue('👋 Goodbye!')); process.exit(0);
       default: console.log(chalk.red('❌ Invalid choice, please try again.'));
     }
