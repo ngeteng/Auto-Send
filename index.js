@@ -22,7 +22,7 @@ const RPC = {
 
 function selectNetwork() {
   console.log(chalk.yellow('\n🌐 Choose Network:'));
-  console.log(chalk.cyan('1) Sepolia'));   
+  console.log(chalk.cyan('1) Sepolia'));
   console.log(chalk.cyan('2) Base Sepolia'));
   console.log(chalk.cyan('3) BSC Testnet (BNB)'));
   const choice = prompt(chalk.magenta('Network (1-3): '));
@@ -93,7 +93,7 @@ function scheduleCronInteractive() {
 }
 
 async function main() {
-  console.log(chalk.white.bgBlue.bold('🚀 Multi-Net Sepolia Wallet Automation'));
+  console.log(chalk.bold.bgBlue('🚀 Multi-Net Sepolia Wallet Automation'));
   while (true) {
     console.log(chalk.yellow(`\n📋 Menu:\n1) Check Balance\n2) Send ETH\n3) Schedule Recurring Send\n0) Exit\n`));
     const choice = prompt(chalk.magenta('Choose an option: '));
