@@ -93,7 +93,7 @@ function scheduleCronInteractive() {
 }
 
 async function main() {
-  console.log(chalk.bold.bgBlue('🚀 Multi-Net Sepolia Wallet Automation'));
+  console.log(chalk.bgBlue.bold('🚀 Multi-Net Sepolia Wallet Automation'));
   while (true) {
     console.log(chalk.yellow(`\n📋 Menu:\n1) Check Balance\n2) Send ETH\n3) Schedule Recurring Send\n0) Exit\n`));
     const choice = prompt(chalk.magenta('Choose an option: '));
