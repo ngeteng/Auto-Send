@@ -25,7 +25,7 @@ function selectNetwork() {
   const choice = prompt('Network (1-2): ');
   switch (choice) {
     case '1': return { name: 'sepolia', url: RPC.sepolia, chainId: 11155111 };
-    case '2': return { name: 'base-sepolia', url: RPC['base-sepolia'], chainId: 84531 };
+    case '2': return { name: 'base-sepolia', url: RPC['base-sepolia'], chainId: 84532 };
     default:
       console.log('Invalid choice, defaulting to Sepolia');
       return { name: 'sepolia', url: RPC.sepolia, chainId: 11155111 };
