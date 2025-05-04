@@ -1,5 +1,5 @@
 // automation_wallet_sepolia.js
-// Interactive Automation CLI for Ethereum Sepolia Testnet Wallet (CommonJS)
+// Interactive Automation CLI for Ethereum Sepolia Testnet Wallet (CommonJS - Ethers v6)
 // Requirements:
 //   - Node.js v14+
 //   - npm install ethers dotenv prompt-sync node-cron
@@ -18,7 +18,7 @@ const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
 async function showBalance() {
   try {
-    const balance = await wallet.getBalance();
+    const balance = await provider.getBalance(wallet.address);
     console.log(`\n=== Balance ===\n${ethers.formatEther(balance)} ETH\n`);
   } catch (err) {
     console.error('Error fetching balance:', err);
