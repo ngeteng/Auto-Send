@@ -64,8 +64,7 @@ async function sendTransactionInteractive() {
   const to = prompt(chalk.magenta('➡️  Enter recipient address: '));
   const amount = prompt(chalk.magenta('💵 Enter amount (ETH): '));
   try {
-    console.log(chalk.blue(`
-⏳ Sending ${amount} ETH on ${net.name} to ${to}...`));
+    console.log(chalk.blue(`\n⏳ Sending ${amount} ETH on ${net.name} to ${to}...`));
     const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
     console.log(chalk.yellow('🔗 Transaction hash:'), tx.hash);
     await tx.wait();
@@ -81,8 +80,7 @@ function scheduleCronInteractive() {
   const cronExpr = prompt(chalk.magenta('⏰ Enter cron expression (e.g. 0 * * * *): '));
   const to = prompt(chalk.magenta('➡️  Enter recipient address: '));
   const amount = prompt(chalk.magenta('💵 Enter amount (ETH): '));
-  console.log(chalk.blue(`
-🔄 Scheduling send of ${amount} ETH on ${net.name} to ${to} at '${cronExpr}'`));
+  console.log(chalk.blue(`\n🔄 Scheduling send of ${amount} ETH on ${net.name} to ${to} at '${cronExpr}'`));
   cron.schedule(cronExpr, async () => {
     try {
       const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
@@ -95,15 +93,9 @@ function scheduleCronInteractive() {
 }
 
 async function main() {
-  console.log(chalk.bgBlue.white.bold('🚀 Multi-Net Sepolia Wallet Automation'));
+  console.log(chalk.white.bgBlue.bold('🚀 Multi-Net Sepolia Wallet Automation'));
   while (true) {
-    console.log(chalk.yellow(`
-📋 Menu:
-1) Check Balance
-2) Send ETH
-3) Schedule Recurring Send
-0) Exit
-`));
+    console.log(chalk.yellow(`\n📋 Menu:\n1) Check Balance\n2) Send ETH\n3) Schedule Recurring Send\n0) Exit\n`));
     const choice = prompt(chalk.magenta('Choose an option: '));
     switch (choice) {
       case '1': await showBalance(); break;
