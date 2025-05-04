@@ -1,5 +1,5 @@
-// automation_wallet_sepolia.js
-// Interactive Automation CLI for Ethereum Sepolia Testnet Wallet (CommonJS - Ethers v6)
+// automation_wallet_multinet.js
+// Interactive Automation CLI for Ethereum Sepolia & Base Sepolia Testnets (CommonJS - Ethers v6)
 // Requirements:
 //   - Node.js v14+
 //   - npm install ethers dotenv prompt-sync node-cron
@@ -12,24 +12,50 @@ const promptSync = require('prompt-sync');
 dotenv.config();
 const prompt = promptSync({ sigint: true });
 
-// Initialize provider and wallet
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+// Load RPC URLs from environment
+const RPC = {
+  sepolia: process.env.RPC_URL_SEPOLIA || '',
+  'base-sepolia': process.env.RPC_URL_BASE_SEPOLIA || ''
+};
+
+function selectNetwork() {
+  console.log('\nChoose network:');
+  console.log('1) Sepolia');
+  console.log('2) Base Sepolia');
+  const choice = prompt('Network (1-2): ');
+  switch (choice) {
+    case '1': return { name: 'sepolia', url: RPC.sepolia, chainId: 11155111 };
+    case '2': return { name: 'base-sepolia', url: RPC['base-sepolia'], chainId: 84531 };
+    default:
+      console.log('Invalid choice, defaulting to Sepolia');
+      return { name: 'sepolia', url: RPC.sepolia, chainId: 11155111 };
+  }
+}
+
+function getProviderAndWallet(network) {
+  const provider = new ethers.JsonRpcProvider(network.url, { chainId: network.chainId, name: network.name });
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  return { provider, wallet };
+}
 
 async function showBalance() {
+  const net = selectNetwork();
+  const { provider, wallet } = getProviderAndWallet(net);
   try {
     const balance = await provider.getBalance(wallet.address);
-    console.log(`\n=== Balance ===\n${ethers.formatEther(balance)} ETH\n`);
+    console.log(`\n=== Balance on ${net.name} ===\n${ethers.formatEther(balance)} ETH\n`);
   } catch (err) {
     console.error('Error fetching balance:', err);
   }
 }
 
 async function sendTransactionInteractive() {
+  const net = selectNetwork();
+  const { wallet } = getProviderAndWallet(net);
   const to = prompt('Enter recipient address: ');
   const amount = prompt('Enter amount (ETH): ');
   try {
-    console.log(`Sending ${amount} ETH to ${to}...`);
+    console.log(`Sending ${amount} ETH on ${net.name} to ${to}...`);
     const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
     console.log('Transaction hash:', tx.hash);
     await tx.wait();
@@ -40,14 +66,16 @@ async function sendTransactionInteractive() {
 }
 
 function scheduleCronInteractive() {
+  const net = selectNetwork();
+  const { wallet } = getProviderAndWallet(net);
   const cronExpr = prompt('Enter cron expression (e.g. 0 * * * *): ');
   const to = prompt('Enter recipient address: ');
   const amount = prompt('Enter amount (ETH): ');
-  console.log(`Scheduling send of ${amount} ETH to ${to} at '${cronExpr}'`);
+  console.log(`Scheduling send of ${amount} ETH on ${net.name} to ${to} at '${cronExpr}'`);
   cron.schedule(cronExpr, async () => {
     try {
       const tx = await wallet.sendTransaction({ to, value: ethers.parseEther(amount) });
-      console.log(new Date().toISOString(), 'Sent tx:', tx.hash);
+      console.log(new Date().toISOString(), `Sent tx on ${net.name}:`, tx.hash);
     } catch (err) {
       console.error(new Date().toISOString(), 'Cron send error:', err);
     }
@@ -56,7 +84,7 @@ function scheduleCronInteractive() {
 }
 
 async function main() {
-  console.log('Sepolia Wallet Automation (Interactive)');
+  console.log('Multi-Net Sepolia Wallet Automation (Interactive)');
   while (true) {
     console.log(`
 Menu:
