@@ -31,23 +31,24 @@ function selectNetwork() {
   console.log(chalk.cyan('4) Arbitrum Sepolia'));
   const choice = prompt(chalk.magenta('Network (1-4): '));
   switch (choice) {
-    case '1': return { name: 'Sepolia', key: 'sepolia', chainId: 11155111 };
-    case '2': return { name: 'Base-Sepolia', key: 'base-sepolia', chainId: 84532 };
-    case '3': return { name: 'BSC Testnet', key: 'bsc-testnet', chainId: 97 };
-    case '4': return { name: 'Arbitrum-Sepolia', key: 'arbitrum-sepolia', chainId: 421613 };
+    case '1': return { name: 'Sepolia', key: 'sepolia' };
+    case '2': return { name: 'Base-Sepolia', key: 'base-sepolia' };
+    case '3': return { name: 'BSC Testnet', key: 'bsc-testnet' };
+    case '4': return { name: 'Arbitrum-Sepolia', key: 'arbitrum-sepolia' };
     default:
       console.log(chalk.red('Invalid choice, defaulting to Sepolia 🔄'));
-      return { name: 'Sepolia', key: 'sepolia', chainId: 11155111 };
+      return { name: 'Sepolia', key: 'sepolia' };
   }
 }
 
-function getProviderAndWallet({ name, key, chainId }) {
+function getProviderAndWallet({ name, key }) {
   const url = RPC[key];
-  if (!url?.startsWith('http')) {
+  if (!url.startsWith('http')) {
     console.log(chalk.red(`⚠️  Invalid RPC URL for ${name}: ${url}`));
     process.exit(1);
   }
-  const provider = new JsonRpcProvider(url, { chainId, name: name.toLowerCase() });
+  // Let Ethers.js auto-detect network (chainId)
+  const provider = new JsonRpcProvider(url);
   const wallet = new Wallet(process.env.PRIVATE_KEY, provider);
   return { provider, wallet };
 }
@@ -59,6 +60,9 @@ async function showBalance() {
     console.log(chalk.bold(chalk.blue(`\n🔍 Fetching balance on ${net.name}...`)));
     const balance = await provider.getBalance(wallet.address);
     console.log(chalk.green(`💰 Balance on ${net.name}: ${formatEther(balance)}`));
+    // Debug: show actual network
+    const info = await provider.getNetwork();
+    console.log(chalk.blue(`🔗 Connected to chainId ${info.chainId}, name ${info.name}`));
   } catch (err) {
     console.log(chalk.red(`❌ Error fetching balance: ${err.message}`));
   }
