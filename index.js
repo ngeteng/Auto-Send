@@ -1,5 +1,5 @@
 // automation_wallet_multinet.js
-// Interactive Automation CLI for Ethereum Sepolia & Base Sepolia Testnets with Colors & Emojis (ESM - Ethers v6)
+// Interactive Automation CLI for Ethereum Sepolia, Base Sepolia, BSC Testnet & Arbitrum Sepolia Testnet with Colors & Emojis (ESM - Ethers v6)
 // Bulk send feature: reads addresses from addresses.txt and sends specified amount to each
 // Requirements:
 //   - Node.js v14+
@@ -19,7 +19,8 @@ const prompt = promptSync({ sigint: true });
 const RPC = {
   sepolia: process.env.RPC_URL_SEPOLIA ?? '',
   'base-sepolia': process.env.RPC_URL_BASE_SEPOLIA ?? '',
-  'bsc-testnet': process.env.RPC_URL_BSC_TESTNET ?? ''
+  'bsc-testnet': process.env.RPC_URL_BSC_TESTNET ?? '',
+  'arbitrum-sepolia': process.env.RPC_URL_ARBITRUM_SEPOLIA ?? ''
 };
 
 function selectNetwork() {
@@ -27,11 +28,13 @@ function selectNetwork() {
   console.log(chalk.cyan('1) Sepolia'));
   console.log(chalk.cyan('2) Base Sepolia'));
   console.log(chalk.cyan('3) BSC Testnet (BNB)'));
-  const choice = prompt(chalk.magenta('Network (1-3): '));
+  console.log(chalk.cyan('4) Arbitrum Sepolia'));
+  const choice = prompt(chalk.magenta('Network (1-4): '));
   switch (choice) {
     case '1': return { name: 'Sepolia', key: 'sepolia', chainId: 11155111 };
     case '2': return { name: 'Base-Sepolia', key: 'base-sepolia', chainId: 84532 };
     case '3': return { name: 'BSC Testnet', key: 'bsc-testnet', chainId: 97 };
+    case '4': return { name: 'Arbitrum-Sepolia', key: 'arbitrum-sepolia', chainId: 421613 };
     default:
       console.log(chalk.red('Invalid choice, defaulting to Sepolia 🔄'));
       return { name: 'Sepolia', key: 'sepolia', chainId: 11155111 };
